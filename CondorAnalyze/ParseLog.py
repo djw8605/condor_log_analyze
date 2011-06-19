@@ -186,11 +186,14 @@ class Job:
         self.events.append( (event, time, self.last_site) )
         global min_time
         if event == Job.RUNNING:
-            if (len(self.events) > 2) and (self.events[len(self.events) - 2][0] != self.GRID_SUBMIT):
-               ModifySite(self.last_site, time - min_time, -1)
+            #if (len(self.events) > 2) and (self.events[len(self.events) - 2][0] != self.GRID_SUBMIT):
+            #   ModifySite(self.last_site, time - min_time, -1)
+            #   print "running at new site %s" % self.last_site
             ModifySite(self.last_site, time - min_time, 1)
+            #print "running at site %s" % self.last_site
         elif (event == Job.EVICT) or (event == Job.STOP):
             ModifySite(self.last_site, time - min_time, -1)
+            #print "ending at site %s" % self.last_site
         elif (event == Job.HOLD) and (self.events[len(self.events) - 2][0] == self.RUNNING):
             ModifySite(self.last_site, time - min_time, -1)
             
@@ -569,7 +572,7 @@ def main():
     
     OutputCols("")
     OutputCols( "Divided by Number of jobs")
-    num_jobs = 1000.0
+    num_jobs = len(jobs)
     OutputCols( "Remote Queue Time", "%0.2lf M" % (float(GetTotalRemoteQueueTime()) / (60*num_jobs)))
     OutputCols( "Matching Time", "%0.2lf H" % (float(GetTotalMatchingTime()) / (3600*num_jobs)))
     OutputCols( "Queue Time", "%0.2lf H" % (float(GetTotalQueueTime()) / (3600*num_jobs)))
