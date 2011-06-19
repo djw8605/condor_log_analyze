@@ -60,16 +60,30 @@ def ModifySite(site, ts, num):
     if not sites.has_key(site):
         sites[site] = []
         
-    if len(sites[site]) == 0:
-        cur_num = num
-    else:
-        cur_num = sites[site][len(sites[site])-1][1] + num
+    #if len(sites[site]) == 0:
+    cur_num = num
+    #else:
+    #    cur_num = sites[site][len(sites[site])-1][1] + num
     sites[site].append( (ts, cur_num) )
     
     
 
 def SummarizeSites(interval):
     global sites
+    new_sites = {}
+    for site in sites.keys():
+        #print "presort"
+        #print sites[site]
+        sites[site].sort()
+        #print "postsort"
+        #print sites[site]
+        new_sites[site] = []
+        running_total = 0
+        for event in sites[site]:
+            running_total += event[1]
+            new_sites[site].append ( ( event[0], running_total ) )
+    sites = new_sites
+
     sites_return = {}
     
     # For every site

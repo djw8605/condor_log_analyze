@@ -8,7 +8,7 @@ then
 fi
 
 cp report-template.tex report.tex
-echo "\\begin{center} \\textbf{Percentage = $3\\%} \\end{center}" >> report.tex
+#echo "\\begin{center} \\textbf{Percentage = $3\\%} \\end{center}" >> report.tex
 cat parse.txt >> report.tex
 #echo "\end{verbatim} \end{document}" >> report.tex
 
