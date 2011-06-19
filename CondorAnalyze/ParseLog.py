@@ -300,13 +300,13 @@ class Job:
 jobs = {}
 
 
-def SetEvent(event, event_re, site=None):
+def SetEvent(event, time, jobid, site=None):
     """
     Fill out the 'jobs' global dictionary.
     """
     global jobs
-    jobid = event_re.group(1)
-    ts = getTime(event_re.group(2))
+    #jobid = event_re.group(1)
+    ts = getTime(time)
     if not jobs.has_key(jobid):
         jobs[jobid] = Job(jobid)
     
@@ -324,7 +324,9 @@ def getTime(ts):
     Get a condor timestamp, and translate to seconds since unix epoch.
     """
     #12/16 12:32:17
-    t = strptime(ts + " 2009", "%m/%d %H:%M:%S %Y")
+    # EventTime = "2011-06-14T02:29:31"
+    t = strptime(ts, "\"%Y-%m-%dT%H:%M:%S\"")
+    #t = strptime(ts + " 2009", "%m/%d %H:%M:%S %Y")
     cur_time = int(mktime(t))
     global max_time
     global min_time
@@ -351,10 +353,34 @@ def ParseFile(file):
     
     f = open(file)
     line_counter = 0
+    job_event = {}
     while 1:
         line = f.readline()
+        
         if not line:
             break
+ 
+        if "..." in line:
+            # Do stuff, end of event
+            if job_event.has_key("MyType"):
+               if job_event["MyType"] == "\"ExecuteEvent\"": 
+                   SetEvent(Job.RUNNING, job_event["EventTime"], ".".join([job_event["Cluster"], job_event["Proc"]]) , job_event["GLIDEIN_GatekeeperB"])
+               elif job_event["MyType"] == "\"JobTerminatedEvent\"":
+                   SetEvent(Job.STOP, job_event["EventTime"], ".".join([job_event["Cluster"], job_event["Proc"]]), job_event["GLIDEIN_GatekeeperB"])
+               elif job_event["MyType"] == "\"JobEvictedEvent\"" or job_event["MyType"] == "\"JobReconnectFailedEvent\"":
+                   SetEvent(Job.EVICT, job_event["EventTime"], ".".join([job_event["Cluster"], job_event["Proc"]]))
+
+            
+            job_event = {}
+            continue
+        
+        # Else read in the event
+        try:
+            job_event[line.split('=')[0].strip()] = line.split('=')[1].strip()
+        except:
+            pass
+        continue
+
         try:
             if local_submit.search(line):
                 SetEvent(Job.LOCAL_SUBMIT, local_submit.search(line))
