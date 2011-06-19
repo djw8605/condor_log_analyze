@@ -386,6 +386,8 @@ def ParseFile(file):
                    SetEvent(Job.STOP, job_event["EventTime"], ".".join([job_event["Cluster"], job_event["Proc"]]), job_event["GLIDEIN_GatekeeperB"])
                elif job_event["MyType"] == "\"JobEvictedEvent\"" or job_event["MyType"] == "\"JobReconnectFailedEvent\"":
                    SetEvent(Job.EVICT, job_event["EventTime"], ".".join([job_event["Cluster"], job_event["Proc"]]))
+               elif job_event["MyType"] == "\"SubmitEvent\"":
+                   SetEvent(Job.LOCAL_SUBMIT, job_event["EventTime"], ".".join([job_event["Cluster"], job_event["Proc"]]))
 
             
             job_event = {}
